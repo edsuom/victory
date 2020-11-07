@@ -7,11 +7,34 @@
 # president in history. Thank you, fellow citizens. Fellow white
 # people, especially fellow white men: Get a clue already.
 
-# Arizona data current with the New York Times's tabulation as of 9:09
-# PM Pacific, 11/6/2020.
+# Arizona data current with the New York Times's tabulation as of 8 AM
+# Pacific, 11/7/2020.
 
-def msg(proto, *args):
-    print(proto.format(*args))
+
+import textwrap
+
+
+class Messenger(object):
+    line_length = 50
+
+    def __init__(self):
+        self.w = textwrap.TextWrapper(
+            width=self.line_length,
+            subsequent_indent=self.space(2),
+            break_long_words=False)
+
+    def space(self, N):
+        return " "*N
+
+    def dashes(self):
+        print("-"*self.line_length)
+
+    def linebreak(self):
+        print("\n")
+    
+    def __call__(self, proto, *args):
+        text = proto.format(*args)
+        print(self.w.fill(text))
 
 
 class County(object):
@@ -88,9 +111,9 @@ class County(object):
 
 
 class AZ_County(County):
-    NT_B = 1604067
-    NT_T = 1574206
-    NT  = 3235450
+    NT_B = 1626943
+    NT_T = 1606370
+    NT  = 3284602
     
     
 class NV_County(County):
@@ -101,14 +124,14 @@ class NV_County(County):
     
 AZ = {
     'Apache':           AZ_County(72,      24333,          +37     ),
-    'Pinal':            AZ_County(82,      156460,         -15     ),
+    'Pinal':            AZ_County(86,      163455,         -15     ),
     'Cochise':          AZ_County(89,      54381,          -17     ),
     'Navajo':           AZ_County(90,      51464,          -8      ),
     'Santa Cruz':       AZ_County(93,      19546,          +36     ),
     'Pima':             AZ_County(95,      501058,         +20     ),
-    'Yuma':             AZ_County(95,      66677,          -6      ),
     'La Paz':           AZ_County(95,      6677,           -37     ),
-    'Maricopa':         AZ_County(96,      1991563,        +3      ),
+    'Yuma':             AZ_County(97,      68427,          -6      ),
+    'Maricopa':         AZ_County(98,      2039433,        +2      ),
     'Mohave':           AZ_County(98,      103836,         -51     ),
     'Yavapai':          AZ_County(99,      141719,         -29     ),
     'Coconino':         AZ_County(98,      72110,          +24     ),
@@ -137,13 +160,16 @@ NV = {
     'Eureka':           NV_County(99,      942,            +79     ),
 }
 
+
+msg = Messenger()
 for name, State in (("Arizona", AZ), ("Nevada", NV)):
-    counties = State.values()
+    counties = list(State.values())
     N = sum([int(vv) for vv in counties])
     B_now = sum([vv.B for vv in counties])
     T_now = sum([vv.T for vv in counties])
-    
-    msg("\n{}\n{}", name, '-'*79)
+
+    msg(name)
+    msg.dashes()
     msg("There have been "+\
         "{:d} votes cast for either Biden or Trump.", N)
     msg("Biden currently has {:d} of the votes cast.", B_now)
@@ -172,5 +198,7 @@ for name, State in (("Arizona", AZ), ("Nevada", NV)):
     
     msg("Expected total vote difference: {:d}",
         B_total_expected - T_total_expected)
+
+    msg.linebreak()
 
     
