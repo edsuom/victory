@@ -31,21 +31,40 @@ class Messenger(object):
 
     def linebreak(self):
         print("\n")
-    
+
     def __call__(self, proto, *args):
         text = proto.format(*args)
         print(self.w.fill(text))
 
+    def table_row(self, first, second, third):
+        """
+        Call with the contents of a single row of a text table.
+        """
+        self("{:>16s}  {:6d}  {:6d}", first, second, third)
 
+        
 class County(object):
     """
     I represent one county of a state with votes yet to be counted.
     """
-    def __int__(self):
-        return int(round(self.total))
-
-    def __add__(self, other):
-        return int(self) + int(other)
+    def __init__(self, name, pct_reported, total, biden_margin):
+        """
+        Construct with county I{name}, percentage reported I{pct_reported}
+        (0-100), I{total} votes cast thus far, and percentage margin
+        of votes going to Biden (-100 to +100), I{biden_margin}.
+        """
+        self.name = name
+        self.pr = 0.01 * pct_reported
+        self.total = total
+        self.biden_margin = biden_margin
+        # With a 10% margin, pb is 0.55, because 1-pb = 0.45.
+        self.pb = 0.5 + 0.005*biden_margin
+        B = self.B
+        NT_B = int(self.pb*self.p_BT*self.total)
+        if abs(B - NT_B) > 10:
+            raise ValueError(
+                "Too much error in computation of Biden vote share thus far: "+\
+                "B={:d}, pb*p_BT*NT={:d} != {:d}", B, NT_B)
 
     @property
     def B(self):
@@ -58,24 +77,12 @@ class County(object):
     @property
     def p_BT(self):
         return float(self.NT_B + self.NT_T) / self.NT
-    
-    def __init__(self, pct_reported, total, biden_margin):
-        """
-        Construct with percentage reported I{pct_reported} (0-100),
-        I{total} votes cast thus far, and percentage margin of votes
-        going to Biden (-100 to +100), I{biden_margin}.
-        """
-        self.pr = 0.01 * pct_reported
-        self.total = total
-        self.biden_margin = biden_margin
-        # With a 10% margin, pb is 0.55, because 1-pb = 0.45.
-        self.pb = 0.5 + 0.005*biden_margin
-        B = self.B
-        NT_B = int(self.pb*self.p_BT*self.total)
-        if abs(B - NT_B) > 10:
-            raise ValueError(
-                "Too much error in computation of Biden vote share thus far: "+\
-                "B={:d}, pb*p_BT*NT={:d} != {:d}", B, NT_B)
+
+    def __int__(self):
+        return int(round(self.total))
+
+    def __add__(self, other):
+        return int(self) + int(other)
 
     def N_remaining(self):
         """
@@ -111,64 +118,68 @@ class County(object):
 
 
 class AZ_County(County):
-    NT_B = 1626943
-    NT_T = 1606370
-    NT  = 3284602
+    NT_B = 1627902
+    NT_T = 1606714
+    NT  = 3285927
     
     
 class NV_County(County):
-    NT_B = 632558
-    NT_T = 609901
-    NT  = 1269513
+    NT_B = 642604
+    NT_T = 616905
+    NT  = 1287403
     
     
-AZ = {
-    'Apache':           AZ_County(72,      24333,          +37     ),
-    'Pinal':            AZ_County(86,      163455,         -15     ),
-    'Cochise':          AZ_County(89,      54381,          -17     ),
-    'Navajo':           AZ_County(90,      51464,          -8      ),
-    'Santa Cruz':       AZ_County(93,      19546,          +36     ),
-    'Pima':             AZ_County(95,      501058,         +20     ),
-    'La Paz':           AZ_County(95,      6677,           -37     ),
-    'Yuma':             AZ_County(97,      68427,          -6      ),
-    'Maricopa':         AZ_County(98,      2039433,        +2      ),
-    'Mohave':           AZ_County(98,      103836,         -51     ),
-    'Yavapai':          AZ_County(99,      141719,         -29     ),
-    'Coconino':         AZ_County(98,      72110,          +24     ),
-    'Gila':             AZ_County(99,      27726,          -34     ),
-    'Graham':           AZ_County(99,      15026,          -45     ),
-    'Greenlee':         AZ_County(99,      3692,           -34     ),
-}
+AZ = [
+    AZ_County('Apache',           75,      25355,          +38     ),
+    AZ_County('Pinal',            86,      163455,         -15     ),
+    AZ_County('Cochise',          89,      54381,          -17     ),
+    AZ_County('Navajo',           90,      51464,          -8      ),
+    AZ_County('Santa Cruz',       93,      19546,          +36     ),
+    AZ_County('Pima',             95,      501058,         +20     ),
+    AZ_County('La Paz',           95,      6677,           -37     ),
+    AZ_County('Yuma',             97,      68427,          -6      ),
+    AZ_County('Maricopa',         98,      2039433,        +2      ),
+    AZ_County('Mohave',           98,      103836,         -51     ),
+    AZ_County('Yavapai',          99,      141719,         -29     ),
+    AZ_County('Coconino',         99,      72413,          +24     ),
+    AZ_County('Gila',             99,      27726,          -34     ),
+    AZ_County('Graham',           99,      15026,          -45     ),
+    AZ_County('Greenlee',         99,      3692,           -34     ),
+]
 
-NV = {
-    'Lincoln':          NV_County(87,      2312,          -71      ),
-    'Clark':            NV_County(88,      852228,         +9      ),
-    'Mineral':          NV_County(88,      2179,          +27      ),
-    'Elko':             NV_County(89,      20575,         +56      ),
-    'White Pine':       NV_County(89,      4177,          +58      ),
-    'Lander':           NV_County(89,      2653,          +62      ),
-    'Storey':           NV_County(90,      2870,          +35      ),
-    'Esmeralda':        NV_County(90,      474,           +67      ),
-    'Pershing':         NV_County(91,      2232,          +51      ),
-    'Churchill':        NV_County(92,      12503,         +49      ),
-    'Humboldt':         NV_County(92,      7324,          +54      ),
-    'Carson City':      NV_County(94,      29126,         +11      ),
-    'Nye':              NV_County(94,      22857,         +40      ),
-    'Washoe':           NV_County(97,      244132,         +4      ),
-    'Douglas':          NV_County(97,      33537,          +29     ),
-    'Lyon':             NV_County(99,      29392,          +41     ),
-    'Eureka':           NV_County(99,      942,            +79     ),
-}
+NV = [
+    NV_County('Lincoln',          87,      2312,          -71      ),
+    NV_County('Mineral',          88,      2179,          +27      ),
+    NV_County('White Pine',       89,      4177,          +58      ),
+    NV_County('Lander',           89,      2653,          +62      ),
+    NV_County('Clark',            90,      866924,         +9      ),
+    NV_County('Storey',           90,      2870,          +35      ),
+    NV_County('Esmeralda',        90,      474,           +67      ),
+    NV_County('Elko',             92,      21063,         +55      ),
+    NV_County('Churchill',        92,      12503,         +49      ),
+    NV_County('Humboldt',         92,      7324,          +54      ),
+    NV_County('Carson City',      94,      29126,         +11      ),
+    NV_County('Washoe',           97,      245674,         +4      ),
+    NV_County('Douglas',          97,      33537,         +29      ),
+    NV_County('Pershing',         91,      2232,          +51      ),
+    NV_County('Lyon',             99,      29392,         +41      ),
+    NV_County('Nye',              99,      24021,         +40      ),
+    NV_County('Eureka',           99,      942,           +79      ),
+]
 
 
 msg = Messenger()
-for name, State in (("Arizona", AZ), ("Nevada", NV)):
-    counties = list(State.values())
+for name, counties in (("Arizona", AZ), ("Nevada", NV)):
     N = sum([int(vv) for vv in counties])
     B_now = sum([vv.B for vv in counties])
     T_now = sum([vv.T for vv in counties])
 
     msg(name)
+    msg.dashes()
+    msg("County, +Votes expected for Biden, +Total expected")
+    msg.dashes()
+    for c in counties:
+        msg.table_row(c.name, c.expected_share(), c.N_remaining())
     msg.dashes()
     msg("There have been "+\
         "{:d} votes cast for either Biden or Trump.", N)
