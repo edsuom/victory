@@ -8,7 +8,7 @@
 # people, especially fellow white men: Get a clue already.
 
 # Arizona data current with the New York Times's tabulation as of
-# 11:30 AM Pacific, 11/8/2020.
+# 3:35 PM Pacific, 11/8/2020.
 
 
 import textwrap
@@ -117,34 +117,28 @@ class County(object):
         return share
 
 
-class AZ_County(County):
-    NT_B = 1633181
-    NT_T = 1613833
-    NT  = 3298607
-    
-    
-class NV_County(County):
-    NT_B = 642604
-    NT_T = 616905
-    NT  = 1287403
+class County(County):
+    NT_B = 1643488
+    NT_T = 1626536
+    NT  = 3322208
     
     
 counties = [
-    AZ_County('Cochise',          89,      54381,          -17     ),
-    AZ_County('Pinal',            90,      170574,         -16     ),
-    AZ_County('Apache',           90,      30672,          +34     ),
-    AZ_County('Navajo',           91,      51708,          -8      ),
-    AZ_County('Santa Cruz',       93,      19546,          +36     ),
-    AZ_County('Pima',             95,      501058,         +20     ),
-    AZ_County('La Paz',           95,      6677,           -37     ),
-    AZ_County('Yuma',             97,      68427,          -6      ),
-    AZ_County('Maricopa',         98,      2039433,        +2      ),
-    AZ_County('Mohave',           98,      103836,         -51     ),
-    AZ_County('Yavapai',          99,      141719,         -29     ),
-    AZ_County('Coconino',         99,      72413,          +24     ),
-    AZ_County('Gila',             99,      27726,          -34     ),
-    AZ_County('Graham',           99,      15026,          -45     ),
-    AZ_County('Greenlee',         99,      3692,           -34     ),
+    County('Cochise',          89,      54381,          -17     ),
+    County('La Paz',           89,      6677,           -37     ),
+    County('Pima',             95,      501058,         +20     ),
+    County('Pinal',            97,      184060,         -17     ),
+    County('Yuma',             97,      68427,          -6      ),
+    County('Maricopa',         98,      2046295,        +2      ),
+    County('Yavapai',          98,      141719,         -29     ),
+    County('Mohave',           98,      103836,         -51     ),
+    County('Coconino',         98,      72413,          +24     ),
+    County('Navajo',           98,      51708,          -8      ),
+    County('Apache',           99,      33925,          +34     ),
+    County('Gila',             99,      27726,          -34     ),
+    County('Santa Cruz',       99,      19546,          +36     ),
+    County('Graham',           99,      15026,          -45     ),
+    County('Greenlee',         99,      3692,           -34     ),
 ]
 
 counties.sort(key=lambda c: c.expected_share(), reverse=True)
