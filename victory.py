@@ -40,7 +40,7 @@ class Messenger(object):
         """
         Call with the contents of a single row of a text table.
         """
-        self("{:>16s}  {:6d}  {:6d}", first, second, third)
+        self("{}: {:d}/{:d}", first, second, third)
 
         
 class County(object):
@@ -118,9 +118,9 @@ class County(object):
 
 
 class AZ_County(County):
-    NT_B = 1627902
-    NT_T = 1606714
-    NT  = 3285927
+    NT_B = 1633181
+    NT_T = 1613833
+    NT  = 3298607
     
     
 class NV_County(County):
@@ -129,11 +129,11 @@ class NV_County(County):
     NT  = 1287403
     
     
-AZ = [
-    AZ_County('Apache',           75,      25355,          +38     ),
-    AZ_County('Pinal',            86,      163455,         -15     ),
+counties = [
     AZ_County('Cochise',          89,      54381,          -17     ),
-    AZ_County('Navajo',           90,      51464,          -8      ),
+    AZ_County('Pinal',            90,      170574,         -16     ),
+    AZ_County('Apache',           90,      30672,          +34     ),
+    AZ_County('Navajo',           91,      51708,          -8      ),
     AZ_County('Santa Cruz',       93,      19546,          +36     ),
     AZ_County('Pima',             95,      501058,         +20     ),
     AZ_County('La Paz',           95,      6677,           -37     ),
@@ -147,69 +147,49 @@ AZ = [
     AZ_County('Greenlee',         99,      3692,           -34     ),
 ]
 
-NV = [
-    NV_County('Lincoln',          87,      2312,          -71      ),
-    NV_County('Mineral',          88,      2179,          +27      ),
-    NV_County('White Pine',       89,      4177,          +58      ),
-    NV_County('Lander',           89,      2653,          +62      ),
-    NV_County('Clark',            90,      866924,         +9      ),
-    NV_County('Storey',           90,      2870,          +35      ),
-    NV_County('Esmeralda',        90,      474,           +67      ),
-    NV_County('Elko',             92,      21063,         +55      ),
-    NV_County('Churchill',        92,      12503,         +49      ),
-    NV_County('Humboldt',         92,      7324,          +54      ),
-    NV_County('Carson City',      94,      29126,         +11      ),
-    NV_County('Washoe',           97,      245674,         +4      ),
-    NV_County('Douglas',          97,      33537,         +29      ),
-    NV_County('Pershing',         91,      2232,          +51      ),
-    NV_County('Lyon',             99,      29392,         +41      ),
-    NV_County('Nye',              99,      24021,         +40      ),
-    NV_County('Eureka',           99,      942,           +79      ),
-]
-
+counties.sort(key=lambda c: c.expected_share(), reverse=True)
 
 msg = Messenger()
-for name, counties in (("Arizona", AZ), ("Nevada", NV)):
-    N = sum([int(vv) for vv in counties])
-    B_now = sum([vv.B for vv in counties])
-    T_now = sum([vv.T for vv in counties])
+N = sum([int(vv) for vv in counties])
+B_now = sum([vv.B for vv in counties])
+T_now = sum([vv.T for vv in counties])
 
-    msg(name)
-    msg.dashes()
-    msg("County, +Votes expected for Biden, +Total expected")
-    msg.dashes()
-    for c in counties:
-        msg.table_row(c.name, c.expected_share(), c.N_remaining())
-    msg.dashes()
-    msg("There have been "+\
-        "{:d} votes cast for either Biden or Trump.", N)
-    msg("Biden currently has {:d} of the votes cast.", B_now)
-    msg("Trump currently has {:d} of the votes cast.", T_now)
-    C = counties[0]
-    msg("Difference (absolute) between sum of expected current "+\
-        "per-candidate totals vs current BT votes cast: {:d}",
-        abs(B_now + T_now - (C.NT_B + C.NT_T)))
-    
-    N_remaining = sum([vv.N_remaining() for vv in counties])
-    B_expected = sum([vv.expected_share() for vv in counties])
-    msg("Biden's expected share of the votes estimated "+\
-        "still uncounted: {:d}", B_expected)
-    T_expected = sum([
-        int(vv.N_remaining() - vv.expected_share()) for vv in counties])
-    msg("Trump's expected share of the votes estimated "+\
-        "still uncounted: {:d}", T_expected)
-    
-    B_total_expected = B_now + B_expected
-    msg("Total Biden votes expected: {:d}", B_total_expected)
-    T_total_expected = T_now + T_expected
-    msg("Total Trump votes expected: {:d}", T_total_expected)
-    N_total_expected = B_total_expected + T_total_expected
-    msg("Biden's expected total % of Biden+Trump votes: {:+.1f}",
-        100.0*B_total_expected/N_total_expected)
-    
-    msg("Expected total vote difference: {:d}",
-        B_total_expected - T_total_expected)
+msg("ARIZONA")
+msg.dashes()
+msg("County: +Biden votes expected / +Total expected")
+msg.dashes()
+for c in counties:
+    msg.table_row(c.name, c.expected_share(), c.N_remaining())
+msg.dashes()
+msg("There have been "+\
+    "{:d} votes cast for either Biden or Trump.", N)
+msg("Biden currently has {:d} of the votes cast.", B_now)
+msg("Trump currently has {:d} of the votes cast.", T_now)
+C = counties[0]
+msg("Difference (absolute) between sum of expected current "+\
+    "per-candidate totals vs current BT votes cast: {:d}",
+    abs(B_now + T_now - (C.NT_B + C.NT_T)))
 
-    msg.linebreak()
+N_remaining = sum([vv.N_remaining() for vv in counties])
+B_expected = sum([vv.expected_share() for vv in counties])
+msg("Biden's expected share of the votes estimated "+\
+    "still uncounted: {:d}", B_expected)
+T_expected = sum([
+    int(vv.N_remaining() - vv.expected_share()) for vv in counties])
+msg("Trump's expected share of the votes estimated "+\
+    "still uncounted: {:d}", T_expected)
+
+B_total_expected = B_now + B_expected
+msg("Total Biden votes expected: {:d}", B_total_expected)
+T_total_expected = T_now + T_expected
+msg("Total Trump votes expected: {:d}", T_total_expected)
+N_total_expected = B_total_expected + T_total_expected
+msg("Biden's expected total % of Biden+Trump votes: {:+.1f}",
+    100.0*B_total_expected/N_total_expected)
+
+msg("Expected total vote difference: {:d}",
+    B_total_expected - T_total_expected)
+
+msg.linebreak()
 
     
